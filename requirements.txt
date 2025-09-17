@@ -1,1 +1,6 @@
-kagglehub[pandas-datasets]
+pandas
+numpy
+scikit-learn
+matplotlib
+joblib
+kagglehub
