@@ -1,239 +1,401 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Clasificador — Adult Income</title>
-  <style>
-    :root {
-      --bg:#fafafa; --card:#fff; --muted:#6b7280; --line:#e5e7eb; --text:#111827; --accent:#111; --ok:#16a34a; --warn:#b45309; --bad:#dc2626;
-    }
-    * { box-sizing: border-box; }
-    body { margin:0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    .container { max-width: 1080px; margin: 32px auto; padding: 0 16px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,.05); }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clasificador — Adult Income</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --card: #fff;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --text: #111827;
+        --accent: #111;
+        --ok: #16a34a;
+        --warn: #b45309;
+        --bad: #dc2626;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+      }
+      .container {
+        max-width: 1080px;
+        margin: 32px auto;
+        padding: 0 16px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+      }
 
-    h1 { font-size: 22px; margin: 0 0 10px; }
-    .sub { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
-    .metrics { display:flex; flex-wrap:wrap; gap:8px; margin: 8px 0 12px; }
-    .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius: 1000px; background:#f3f4f6; font-size:12px; border:1px solid #e5e7eb; }
-    .pill.ok { background:#ecfdf5; border-color:#d1fae5; }
-    .pill.bad { background:#fef2f2; border-color:#fee2e2; }
-    .hr { height:1px; background: var(--line); margin:16px 0; }
-    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:12px; }
-    label { display:block; font-size:12px; color:#374151; margin-bottom:6px; }
-    input, select { width:100%; padding:10px; border:1px solid #d1d5db; border-radius:12px; background:white; }
-    .actions { margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
-    button { padding:10px 14px; border-radius:12px; border:1px solid #111; background:#111; color:#fff; cursor:pointer; }
-    button.secondary { background:#fff; color:#111; }
-    .result { margin-top:12px; font-size:20px; }
-    .muted { color: var(--muted); font-size:12px; margin-top:4px; }
-    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background:#f3f4f6; border:1px solid #e5e7eb; padding:2px 6px; border-radius:6px; font-size:12px; }
-    .note { font-size:12px; color:#4b5563; }
-    .toast { margin-top:10px; font-size:13px; color:#374151; }
-    .toast.err { color: var(--bad); }
-    .tiny { font-size:11px; color:#6b7280; }
-  </style>
-  <div class="hr"></div>
-<h3 style="margin:6px 0 8px;font-size:16px;">Gráficas del modelo</h3>
-<div id="figs" class="grid"></div>
-</head>
-<body>
-  <div class="container">
-    <div class="card">
-      <h1 id="title">Clasificador — Adult Income</h1>
-      <div class="sub">Completa los campos y obtén la clase y probabilidad. El modelo y métricas provienen del backend.</div>
-
-      <!-- Métricas -->
-      <div id="metrics" class="metrics"></div>
-      <div class="tiny" id="metaCsv"></div>
-
-      <div class="hr"></div>
-
-      <!-- Formulario dinámico -->
-      <form id="form">
-        <div class="grid" id="fields"></div>
-        <div class="actions">
-          <button type="button" id="btnPredict">Predecir</button>
-          <button type="reset" class="secondary">Limpiar</button>
+      h1 {
+        font-size: 22px;
+        margin: 0 0 10px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 8px;
+      }
+      .metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0 12px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 1000px;
+        background: #f3f4f6;
+        font-size: 12px;
+        border: 1px solid #e5e7eb;
+      }
+      .pill.ok {
+        background: #ecfdf5;
+        border-color: #d1fae5;
+      }
+      .pill.bad {
+        background: #fef2f2;
+        border-color: #fee2e2;
+      }
+      .hr {
+        height: 1px;
+        background: var(--line);
+        margin: 16px 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: #374151;
+        margin-bottom: 6px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        background: white;
+      }
+      .actions {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      button {
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid #111;
+        background: #111;
+        color: #fff;
+        cursor: pointer;
+      }
+      button.secondary {
+        background: #fff;
+        color: #111;
+      }
+      .result {
+        margin-top: 12px;
+        font-size: 20px;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+      .note {
+        font-size: 12px;
+        color: #4b5563;
+      }
+      .toast {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #374151;
+      }
+      .toast.err {
+        color: var(--bad);
+      }
+      .tiny {
+        font-size: 11px;
+        color: #6b7280;
+      }
+    </style>
+    <div class="hr"></div>
+    <h3 style="margin: 6px 0 8px; font-size: 16px">Gráficas del modelo</h3>
+    <div id="figs" class="grid"></div>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1 id="title">Clasificador — Adult Income</h1>
+        <div class="sub">
+          Completa los campos y obtén la clase y probabilidad. El modelo y
+          métricas provienen del backend.
         </div>
-      </form>
 
-      <!-- Resultado -->
-      <div id="output" class="result"></div>
-      <div class="muted">Objetivo: <span id="target"></span></div>
-      <div id="toast" class="toast"></div>
+        <!-- Métricas -->
+        <div id="metrics" class="metrics"></div>
+        <div class="tiny" id="metaCsv"></div>
+
+        <div class="hr"></div>
+
+        <!-- Formulario dinámico -->
+        <form id="form">
+          <div class="grid" id="fields"></div>
+          <div class="actions">
+            <button type="button" id="btnPredict">Predecir</button>
+            <button type="reset" class="secondary">Limpiar</button>
+          </div>
+        </form>
+
+        <!-- Resultado -->
+        <div id="output" class="result"></div>
+        <div class="muted">Objetivo: <span id="target"></span></div>
+        <div id="toast" class="toast"></div>
+      </div>
+
+      <div class="note" style="margin-top: 12px">
+        Tip: puedes dejar campos vacíos; el pipeline del modelo maneja
+        imputación y categorías no vistas.
+      </div>
     </div>
 
-    <div class="note" style="margin-top:12px;">
-      Tip: puedes dejar campos vacíos; el pipeline del modelo maneja imputación y categorías no vistas.
-    </div>
-  </div>
+    <script>
+      let schema = null;
 
-  <script>
-    let schema = null;
+      function el(id) {
+        return document.getElementById(id);
+      }
 
-    function el(id){ return document.getElementById(id); }
+      function pct(n) {
+        if (n == null || isNaN(n)) return "—";
+        return (n * 100).toFixed(1) + "%";
+      }
+      function fix3(n) {
+        if (n == null || isNaN(n)) return "—";
+        return (+n).toFixed(3);
+      }
 
-    function pct(n){
-      if (n == null || isNaN(n)) return "—";
-      return (n*100).toFixed(1) + "%";
-    }
-    function fix3(n){
-      if (n == null || isNaN(n)) return "—";
-      return (+n).toFixed(3);
-    }
+      // Mapea la clase predicha a etiquetas legibles
+      function formatClass(val) {
+        if (val === 1 || val === "1") return "más de $25,000";
+        if (val === 0 || val === "0") return "$25,000 o menos";
+        return String(val);
+      }
 
-    function renderMetrics(s) {
-      const m = s.metrics || {};
-      const pills = [];
+      function renderMetrics(s) {
+        const m = s.metrics || {};
+        const pills = [];
 
-      // si las métricas vienen en [0..1], muéstralas como decimales fijos
-      pills.push(`<span class="pill">Accuracy <strong>${fix3(m.accuracy)}</strong></span>`);
-      pills.push(`<span class="pill">Precision <strong>${fix3(m.precision)}</strong></span>`);
-      pills.push(`<span class="pill">Recall <strong>${fix3(m.recall)}</strong></span>`);
-      pills.push(`<span class="pill">F1 <strong>${fix3(m.f1)}</strong></span>`);
-      pills.push(`<span class="pill">ROC AUC <strong>${fix3(m.roc_auc)}</strong></span>`);
-      pills.push(`<span class="pill">Threshold <strong>${s.threshold ?? "0.5"}</strong></span>`);
+        // si las métricas vienen en [0..1], muéstralas como decimales fijos
+        pills.push(
+          `<span class="pill">Accuracy <strong>${fix3(
+            m.accuracy
+          )}</strong></span>`
+        );
+        pills.push(
+          `<span class="pill">Precision <strong>${fix3(
+            m.precision
+          )}</strong></span>`
+        );
+        pills.push(
+          `<span class="pill">Recall <strong>${fix3(m.recall)}</strong></span>`
+        );
+        pills.push(
+          `<span class="pill">F1 <strong>${fix3(m.f1)}</strong></span>`
+        );
+        pills.push(
+          `<span class="pill">ROC AUC <strong>${fix3(
+            m.roc_auc
+          )}</strong></span>`
+        );
+        pills.push(
+          `<span class="pill">Threshold <strong>${
+            s.threshold ?? "0.5"
+          }</strong></span>`
+        );
 
-      el("metrics").innerHTML = pills.join("");
-      if (m.csv) el("metaCsv").textContent = "Fuente: " + m.csv;
-    }
+        el("metrics").innerHTML = pills.join("");
+        if (m.csv) el("metaCsv").textContent = "Fuente: " + m.csv;
+      }
 
-    function addNumeric(name) {
-      const w = document.createElement("div");
-      w.innerHTML = `
+      function addNumeric(name) {
+        const w = document.createElement("div");
+        w.innerHTML = `
         <label>${name}</label>
         <input type="number" name="${name}" step="any" placeholder="numérico" />
       `;
-      el("fields").appendChild(w);
-    }
+        el("fields").appendChild(w);
+      }
 
-    function addCategorical(name, options) {
-      const w = document.createElement("div");
-      if (options && options.length) {
-        const sel = document.createElement("select");
-        sel.name = name;
-        sel.innerHTML = `<option value="">(elige o escribe)</option>` + options.map(v => `<option value="${v}">${v}</option>`).join("");
-        w.innerHTML = `<label>${name}</label>`;
-        w.appendChild(sel);
-      } else {
-        w.innerHTML = `
+      function addCategorical(name, options) {
+        const w = document.createElement("div");
+        if (options && options.length) {
+          const sel = document.createElement("select");
+          sel.name = name;
+          sel.innerHTML =
+            `<option value="">(elige o escribe)</option>` +
+            options.map((v) => `<option value="${v}">${v}</option>`).join("");
+          w.innerHTML = `<label>${name}</label>`;
+          w.appendChild(sel);
+        } else {
+          w.innerHTML = `
           <label>${name}</label>
           <input type="text" name="${name}" placeholder="texto" />
         `;
+        }
+        el("fields").appendChild(w);
       }
-      el("fields").appendChild(w);
-    }
 
-    async function loadSchema() {
-      try {
-        const r = await fetch("/schema");
-        const s = await r.json();
-        schema = s;
+      async function loadSchema() {
+        try {
+          const r = await fetch("/schema");
+          const s = await r.json();
+          schema = s;
 
-        el("target").textContent = s.target || "(desconocido)";
-        renderMetrics(s);
+          el("target").textContent = s.target || "(desconocido)";
+          renderMetrics(s);
 
-        const fields = el("fields");
-        fields.innerHTML = "";
+          const fields = el("fields");
+          fields.innerHTML = "";
 
-        (s.numeric_features || []).forEach(addNumeric);
-        (s.categorical_features || []).forEach(c => addCategorical(c, (s.categorical_samples || {})[c] || []));
-
-      } catch (err) {
-        el("toast").textContent = "Error cargando /schema: " + (err?.message || err);
-        el("toast").classList.add("err");
+          (s.numeric_features || []).forEach(addNumeric);
+          (s.categorical_features || []).forEach((c) =>
+            addCategorical(c, (s.categorical_samples || {})[c] || [])
+          );
+        } catch (err) {
+          el("toast").textContent =
+            "Error cargando /schema: " + (err?.message || err);
+          el("toast").classList.add("err");
+        }
       }
-    }
 
-    async function predict() {
-      const form = el("form");
-      const data = {};
-      [...form.elements].forEach(elm => {
-        if (!elm.name) return;
-        if (elm.type === "number" && elm.value !== "") data[elm.name] = +elm.value;
-        else if (elm.type !== "button" && elm.type !== "reset") data[elm.name] = elm.value || null;
+      async function predict() {
+        const form = el("form");
+        const data = {};
+        [...form.elements].forEach((elm) => {
+          if (!elm.name) return;
+          if (elm.type === "number" && elm.value !== "")
+            data[elm.name] = +elm.value;
+          else if (elm.type !== "button" && elm.type !== "reset")
+            data[elm.name] = elm.value || null;
+        });
+
+        el("toast").textContent = "Calculando predicción…";
+        el("toast").classList.remove("err");
+
+        try {
+          const r = await fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ data }),
+          });
+          const d = await r.json();
+
+          if (!r.ok) {
+            el("output").textContent = "";
+            el("toast").textContent = "Error: " + (d?.detail || r.statusText);
+            el("toast").classList.add("err");
+            return;
+          }
+
+          const proba = +d.proba_1;
+          const cls = d.pred_class;
+          const th = d.threshold;
+
+          const clsLabel = formatClass(cls);
+          el(
+            "output"
+          ).innerHTML = `Clase predicha: <strong>${clsLabel}</strong> &nbsp;|&nbsp; Probabilidad clase 1: <strong>${(
+            proba * 100
+          ).toFixed(1)}%</strong> <span class="tiny">(umbral=${th})</span>`;
+          el("toast").textContent = "Predicción lista.";
+        } catch (err) {
+          el("output").textContent = "";
+          el("toast").textContent =
+            "Error en predicción: " + (err?.message || err);
+          el("toast").classList.add("err");
+        }
+      }
+
+      async function loadFigures() {
+        try {
+          const r = await fetch("/figs");
+          const d = await r.json();
+          const cont = document.getElementById("figs");
+          cont.innerHTML = "";
+          (d.images || []).forEach((src) => {
+            const card = document.createElement("div");
+            card.style.border = "1px solid #e5e7eb";
+            card.style.borderRadius = "12px";
+            card.style.padding = "8px";
+            card.style.background = "#fff";
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = src.split("/").pop();
+            img.style.width = "100%";
+            img.style.height = "auto";
+            img.style.display = "block";
+            const cap = document.createElement("div");
+            cap.style.fontSize = "12px";
+            cap.style.color = "#6b7280";
+            cap.style.marginTop = "6px";
+            cap.textContent = img.alt;
+            card.appendChild(img);
+            card.appendChild(cap);
+            cont.appendChild(card);
+          });
+        } catch (e) {
+          console.log("No se pudieron cargar las figuras:", e);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadSchema();
+        loadFigures(); // carga las imágenes al abrir
+        document
+          .getElementById("btnPredict")
+          .addEventListener("click", predict);
       });
 
-      el("toast").textContent = "Calculando predicción…";
-      el("toast").classList.remove("err");
-
-      try {
-        const r = await fetch("/predict", {
-          method: "POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({ data })
-        });
-        const d = await r.json();
-
-        if (!r.ok) {
-          el("output").textContent = "";
-          el("toast").textContent = "Error: " + (d?.detail || r.statusText);
-          el("toast").classList.add("err");
-          return;
-        }
-
-        const proba = +d.proba_1;
-        const cls = d.pred_class;
-        const th = d.threshold;
-
-        el("output").innerHTML =
-          `Clase predicha: <strong>${cls}</strong> &nbsp;|&nbsp; Probabilidad clase 1: <strong>${(proba*100).toFixed(1)}%</strong> <span class="tiny">(umbral=${th})</span>`;
-        el("toast").textContent = "Predicción lista.";
-      } catch (err) {
-        el("output").textContent = "";
-        el("toast").textContent = "Error en predicción: " + (err?.message || err);
-        el("toast").classList.add("err");
-      }
-    }
-
-    
-      async function loadFigures() {
-      try {
-        const r = await fetch("/figs");
-        const d = await r.json();
-        const cont = document.getElementById("figs");
-        cont.innerHTML = "";
-        (d.images || []).forEach(src => {
-          const card = document.createElement("div");
-          card.style.border = "1px solid #e5e7eb";
-          card.style.borderRadius = "12px";
-          card.style.padding = "8px";
-          card.style.background = "#fff";
-          const img = document.createElement("img");
-          img.src = src;
-          img.alt = src.split("/").pop();
-          img.style.width = "100%";
-          img.style.height = "auto";
-          img.style.display = "block";
-          const cap = document.createElement("div");
-          cap.style.fontSize = "12px";
-          cap.style.color = "#6b7280";
-          cap.style.marginTop = "6px";
-          cap.textContent = img.alt;
-          card.appendChild(img);
-          card.appendChild(cap);
-          cont.appendChild(card);
-        });
-      } catch (e) {
-        console.log("No se pudieron cargar las figuras:", e);
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      loadSchema();
-      loadFigures(); // carga las imágenes al abrir
-      document.getElementById("btnPredict").addEventListener("click", predict);
-    });
-    
-
-    document.addEventListener("DOMContentLoaded", () => {
-      loadSchema();
-      el("btnPredict").addEventListener("click", predict);
-    });
-  </script>
-</body>
+      document.addEventListener("DOMContentLoaded", () => {
+        loadSchema();
+        el("btnPredict").addEventListener("click", predict);
+      });
+    </script>
+  </body>
 </html>
-
