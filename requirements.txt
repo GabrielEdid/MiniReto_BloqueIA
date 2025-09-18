@@ -4,7 +4,7 @@ pydantic==2.8.2
 numpy
 pandas
 scikit-learn
+matplotlib
 jinja2
 python-multipart
 joblib
-
