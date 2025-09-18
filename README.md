@@ -104,16 +104,3 @@ curl -X POST http://127.0.0.1:8000/predict \
 ```
 
 La respuesta incluye `proba_1`, `pred_class` y el `threshold` usado.
-
-## Notas
-
-- La API sirve las imágenes desde `modelo_reg_logi/artifacts_adult_income` bajo la ruta `/artifacts`.
-- El script del modelo maneja distintos encodings del CSV y realiza imputación/One-Hot internamente.
-- Si cambias el CSV o el script, vuelve a ejecutar el entrenamiento o reinicia la API para regenerar artefactos.
-  La respuesta incluye `proba_1`, `pred_class` y el `threshold` usado.
-
-## Notas
-
-- La API sirve las imágenes desde `modelo_reg_logi/artifacts_adult_income` bajo la ruta `/artifacts`.
-- El script del modelo maneja distintos encodings del CSV y realiza imputación/One-Hot internamente.
-- Si cambias el CSV o el script, vuelve a ejecutar el entrenamiento o reinicia la API para regenerar artefactos.
