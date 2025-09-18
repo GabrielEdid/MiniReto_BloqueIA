@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Regresión Lineal — Estudio de Factores</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 18px; max-width: 980px; box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+    h1 { margin: 0 0 12px; font-size: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    label { font-size: 12px; color: #333; margin-bottom: 6px; display: block; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 10px; }
+    .actions { margin-top: 16px; display: flex; gap: 10px; }
+    button { padding: 10px 14px; border-radius: 12px; border: 0; cursor: pointer; }
+    button.primary { background: black; color: white; }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #f2f2f2; font-size: 12px; margin-right: 6px; }
+    .result { font-size: 24px; margin-top: 10px; }
+    .muted { color: #666; font-size: 12px; }
+    .metrics { font-size: 14px; }
+    .hr { height: 1px; background: #eee; margin: 18px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="title">Regresión Lineal — Estudio de Factores</h1>
+    <div class="metrics" id="metrics"></div>
+    <div class="hr"></div>
+    <form id="form">
+      <div class="grid" id="fields"></div>
+      <div class="actions">
+        <button type="button" class="primary" id="btnPredict">Predecir</button>
+        <button type="reset">Limpiar</button>
+      </div>
+    </form>
+    <div id="output" class="result"></div>
+    <div class="muted">Objetivo: <span id="target"></span></div>
+  </div>
+
+  <script>
+    let schema = null;
+
+    async function loadSchema() {
+      const r = await fetch("/schema");
+      schema = await r.json();
+
+      document.getElementById("title").textContent = schema.title || "Regresión Lineal";
+      document.getElementById("target").textContent = schema.target || "(objetivo desconocido)";
+      document.getElementById("metrics").innerHTML =
+        `Archivo: <span class="pill">${schema.csv_file}</span>
+         <span class="pill">R²: ${(+schema.metrics.r2).toFixed(3)}</span>
+         <span class="pill">MAE: ${(+schema.metrics.mae).toFixed(3)}</span>
+         <span class="pill">RMSE: ${(+schema.metrics.rmse).toFixed(3)}</span>`;
+
+      const fieldsDiv = document.getElementById("fields");
+      fieldsDiv.innerHTML = "";
+
+      const addNumeric = (name) => {
+        const w = document.createElement("div");
+        const label = document.createElement("label");
+        label.textContent = name;
+        const input = document.createElement("input");
+        input.type = "number"; input.step = "any"; input.name = name; input.placeholder = "numérico";
+        w.appendChild(label); w.appendChild(input);
+        fieldsDiv.appendChild(w);
+      };
+
+      const addCategorical = (name, options) => {
+        const w = document.createElement("div");
+        const label = document.createElement("label");
+        label.textContent = name;
+        let control;
+        if (options && options.length) {
+          control = document.createElement("select");
+          control.name = name;
+          const optEmpty = document.createElement("option");
+          optEmpty.value = ""; optEmpty.textContent = "(elige o escribe)";
+          control.appendChild(optEmpty);
+          options.forEach(v => {
+            const o = document.createElement("option");
+            o.value = v; o.textContent = v;
+            control.appendChild(o);
+          });
+        } else {
+          control = document.createElement("input");
+          control.type = "text"; control.name = name; control.placeholder = "texto";
+        }
+        w.appendChild(label); w.appendChild(control);
+        fieldsDiv.appendChild(w);
+      };
+
+      (schema.numeric_features || []).forEach(addNumeric);
+
+      (schema.categorical_features || []).forEach(c => {
+        addCategorical(c, (schema.categorical_samples || {})[c] || []);
+      });
+    }
+
+    async function predict() {
+      if (!schema) return;
+      const form = document.getElementById("form");
+      const data = {};
+      // recoge todos los campos conocidos (num + cat)
+      [...form.elements].forEach(el => {
+        if (!el.name) return;
+        if (el.type === "number" && el.value !== "") data[el.name] = +el.value;
+        else if (el.type !== "button" && el.type !== "reset") data[el.name] = el.value || null;
+      });
+
+      const r = await fetch("/predict", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ data })
+      });
+      if (!r.ok) {
+        const d = await r.json();
+        document.getElementById("output").textContent = "Error: " + (d.detail || r.statusText);
+        return;
+      }
+      const d = await r.json();
+      document.getElementById("output").textContent =
+        `Predicción (${d.target}): ${d.prediction.toFixed(3)}`;
+    }
+
+    document.getElementById("btnPredict").addEventListener("click", predict);
+    loadSchema();
+  </script>
+</body>
+</html>
